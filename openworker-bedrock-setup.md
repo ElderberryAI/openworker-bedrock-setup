@@ -120,16 +120,41 @@ Do this **inside the OpenWorker app** (guide the user click-by-click):
   with the same Bedrock API key as the bearer token. (Note: that path's `/models` returns 404 — use the
   native provider in OpenWorker, which sidesteps it.)
 
-## Step 8 — Add the models (exact strings — verified working)
-Model IDs in OpenWorker **must start with `bedrock:`** or they silently route to OpenAI. In Settings ▸ Models
-▸ **Add model**, add:
-- **DeepSeek V3 (recommended default):** `bedrock:other/deepseek.v3-v1:0`
-- **DeepSeek V3.2 (alt):** `bedrock:other/deepseek.v3.2`
-- **DeepSeek R1 (reasoning):** `bedrock:other/us.deepseek.r1-v1:0`
-- **Claude Sonnet 4.6 (top capability, needs Step 6 access):** `bedrock:claude/anthropic.claude-sonnet-4-6-v1:0`
-  — the `claude/` prefix routes through OpenWorker's native Anthropic-on-Bedrock path (thinking + best tool handling).
+## Step 8 — Add the models (verified against a live account, us-west-2)
 
-The friendly name (e.g. "DeepSeek V3.2") is a **label, not an ID** — always paste the exact `bedrock:…` string.
+In Settings ▸ Models ▸ **Add model**, paste the model **ID** — the friendly name ("DeepSeek V3.2") is a
+label, not an ID. A model ID in OpenWorker is `<provider-prefix>:<bedrock-model-id>`, where the prefix is
+the provider you configured in Step 7. Confirmed working full string: **`deepseek:deepseek.v3-v1:0`**.
+
+Two routes reach Bedrock, and which one a model uses is fixed by the model family:
+
+**A. Open-weight chat models** — the OpenAI-compatible / Converse route (the provider you point at Bedrock).
+All verified runnable on this account:
+
+| Model | Bedrock model ID |
+|---|---|
+| DeepSeek V3 (recommended default) | `deepseek.v3-v1:0` |
+| DeepSeek V3.2 | `deepseek.v3.2` |
+| Mistral Large 3 (675B) | `mistral.mistral-large-3-675b-instruct` |
+| Qwen3 235B | `qwen.qwen3-235b-a22b-2507` |
+| Qwen3 Coder 480B | `qwen.qwen3-coder-480b-a35b-instruct` |
+| GLM-5 | `zai.glm-5` |
+| Kimi K2.5 | `moonshotai.kimi-k2.5` |
+| MiniMax M2.5 | `minimax.minimax-m2.5` |
+| Nemotron Super 3 120B | `nvidia.nemotron-super-3-120b` |
+| gpt-oss-120b | `openai.gpt-oss-120b` |
+
+**B. Anthropic Claude** — OpenWorker's **native Anthropic-on-Bedrock** path (the Messages API, not
+chat-completions). Available on this account:
+- Claude Sonnet 4.6 — `anthropic.claude-sonnet-4-6-v1:0`
+- Claude Haiku 4.5 — `anthropic.claude-haiku-4-5`
+
+**NOT available without an AWS access request** (higher-tier models sit behind a Bedrock model-access /
+use-case review wall): **DeepSeek R1, Claude Opus 4.8 / Opus 5, Claude Sonnet 5**. Also **GPT-5.x** (only on
+the OpenAI Responses API, not chat-completions) and **Grok 4.3** (not exposed on the chat route). If you need
+these, request access in Bedrock ▸ Model access and wait for approval.
+
+The full available-model list for this account tier is in the repo README.
 
 ## Step 9 — Select & verify end-to-end
 1. In the composer's model dropdown, **select** the model you added (adding ≠ selecting — the composer keeps
@@ -141,13 +166,18 @@ The friendly name (e.g. "DeepSeek V3.2") is a **label, not an ID** — always pa
 - Confirm: budget alert set (README §2), env file is `600` + git-ignored, root MFA on, agent user has only
   the Bedrock policy.
 - Tell the user their working defaults:
-  - Everyday: `bedrock:other/deepseek.v3-v1:0`
-  - Most capable (once Claude access is granted): `bedrock:claude/anthropic.claude-sonnet-4-6-v1:0`
+  - Everyday (open-weight route): `deepseek:deepseek.v3-v1:0`
+  - Most capable available: Claude Sonnet 4.6 (`anthropic.claude-sonnet-4-6-v1:0`) via OpenWorker's native
+    Anthropic-on-Bedrock integration — no extra approval needed on a standard account.
+  - Gated (needs an AWS model-access request): DeepSeek R1, Claude Opus 4.8/5, Claude Sonnet 5.
 
 ## Failure decoder (quick)
-- `model 'deepseek-v4-flash' does not exist` → the public DeepSeek tile is selected; switch to the Bedrock
-  provider + a `bedrock:` model.
-- `The provided model identifier is invalid` → wrong/absent model ID string, or model access not enabled in
-  that region.
+- `model 'deepseek-v4-flash' does not exist` → the **public deepseek.com** tile is selected. Point the
+  provider at your Bedrock endpoint and use a Bedrock model ID (e.g. `deepseek:deepseek.v3-v1:0`).
+- `The provided model identifier is invalid` / `model doesn't exist` → wrong model ID, or the model is
+  **gated** (R1 / Opus / Sonnet 5) and not approved on your account, or not enabled in that region.
+- `model ... does not support the '/v1/chat/completions' API` → that model uses a different route
+  (GPT-5.x → Responses API; Claude → the native Anthropic path). Add Claude via OpenWorker's Anthropic/Bedrock
+  Claude integration, not the OpenAI-compatible provider.
 - `AccessDenied … bedrock:ListFoundationModels` → policy too tight or wrong identity on the Test button.
 - Test button red with a credentials error → key not saved, wrong auth method, or region mismatch.

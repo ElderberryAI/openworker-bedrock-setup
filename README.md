@@ -66,19 +66,48 @@ approval, and clicking buttons in the OpenWorker desktop app).
 
 ## What you'll end up with
 
-OpenWorker's **AWS Bedrock** provider passing its **Test** button, and the composer able to run against:
+OpenWorker running against **your own** Bedrock, billed to your AWS account, from a machine that holds none
+of your personal life. In OpenWorker a model ID is `<provider-prefix>:<bedrock-model-id>` — the prefix is the
+provider you configured. **Confirmed working:** `deepseek:deepseek.v3-v1:0`.
 
-| Purpose | Model ID (paste verbatim into OpenWorker) |
+**Everyday picks (verified runnable):**
+
+| Purpose | Bedrock model ID |
 |---|---|
-| Everyday default | `bedrock:other/deepseek.v3-v1:0` |
-| DeepSeek V3.2 | `bedrock:other/deepseek.v3.2` |
-| Reasoning | `bedrock:other/us.deepseek.r1-v1:0` |
-| Most capable (needs Claude model access) | `bedrock:claude/anthropic.claude-sonnet-4-6-v1:0` |
+| Default (fast, cheap, capable) | `deepseek.v3-v1:0` / `deepseek.v3.2` |
+| Big general-purpose | `mistral.mistral-large-3-675b-instruct` |
+| Coding | `qwen.qwen3-coder-480b-a35b-instruct` |
+| Frontier open-weight | `zai.glm-5`, `moonshotai.kimi-k2.5` |
+| Claude (native Anthropic route) | `anthropic.claude-sonnet-4-6-v1:0`, `anthropic.claude-haiku-4-5` |
 
-…all billed to **your** AWS account, from a machine that holds none of your personal life.
+> The friendly name ("DeepSeek V3.2") is a **label, not an ID** — always paste the exact model ID with your
+> provider prefix. If a model ID has no known prefix, OpenWorker silently routes it to OpenAI.
 
-> Model IDs in OpenWorker **must start with `bedrock:`** or they silently route to OpenAI. The friendly
-> name ("DeepSeek V3.2") is a label, not an ID — always paste the exact `bedrock:…` string.
+### Full available model list (this account tier, us-west-2)
+
+Open-weight models run over the **OpenAI-compatible / Converse** route; **Claude** runs over OpenWorker's
+**native Anthropic-on-Bedrock** integration. All below are available on a standard Bedrock account:
+
+- **DeepSeek:** `deepseek.v3.2`, `deepseek.v3-v1:0` (V3), `deepseek.v3.1`
+- **Anthropic (native route):** `anthropic.claude-sonnet-4-6-v1:0`, `anthropic.claude-haiku-4-5`
+- **Qwen:** `qwen.qwen3-235b-a22b-2507`, `qwen.qwen3-coder-480b-a35b-instruct`, `qwen.qwen3-coder-next`, `qwen.qwen3-next-80b-a3b-instruct`, `qwen.qwen3-32b`, `qwen.qwen3-coder-30b-a3b-instruct`, `qwen.qwen3-vl-235b-a22b-instruct` (vision)
+- **Z.ai GLM:** `zai.glm-5`, `zai.glm-4.7`, `zai.glm-4.7-flash`, `zai.glm-4.6`
+- **Moonshot Kimi:** `moonshotai.kimi-k2.5`, `moonshotai.kimi-k2-thinking`
+- **Mistral:** `mistral.mistral-large-3-675b-instruct`, `mistral.devstral-2-123b`, `mistral.magistral-small-2509`, `mistral.ministral-3-14b-instruct`, `mistral.ministral-3-8b-instruct`, `mistral.ministral-3-3b-instruct`, `mistral.voxtral-small-24b-2507` (audio), `mistral.voxtral-mini-3b-2507` (audio)
+- **MiniMax:** `minimax.minimax-m2.5`, `minimax.minimax-m2.1`, `minimax.minimax-m2`
+- **NVIDIA Nemotron:** `nvidia.nemotron-super-3-120b`, `nvidia.nemotron-nano-3-30b`, `nvidia.nemotron-nano-12b-v2`, `nvidia.nemotron-nano-9b-v2`
+- **OpenAI open-weight:** `openai.gpt-oss-120b`, `openai.gpt-oss-20b`, `openai.gpt-oss-safeguard-120b` (moderation), `openai.gpt-oss-safeguard-20b` (moderation)
+- **Google Gemma:** `google.gemma-3-27b-it`, `google.gemma-3-12b-it`, `google.gemma-3-4b-it`
+- **Writer:** `writer.palmyra-vision-7b` (vision)
+
+### NOT available without an AWS access request
+
+These sit behind Bedrock's model-access / use-case approval (a human review wall) — request them in
+**Bedrock ▸ Model access** if you need them:
+
+- **DeepSeek R1** (reasoning), **Claude Opus 4.8 / Opus 5**, **Claude Sonnet 5**
+- **GPT-5.x** (`openai.gpt-5.4`, `openai.gpt-5.6-terra/luna`) — served only via OpenAI's **Responses API**, not the chat-completions route OpenWorker's OpenAI-compatible provider uses
+- **Grok 4.3** (`xai.grok-4.3`) — not exposed on the chat-completions route
 
 ---
 
