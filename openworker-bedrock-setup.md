@@ -120,41 +120,20 @@ Do this **inside the OpenWorker app** (guide the user click-by-click):
   with the same Bedrock API key as the bearer token. (Note: that path's `/models` returns 404 — use the
   native provider in OpenWorker, which sidesteps it.)
 
-## Step 8 — Add the models (verified against a live account, us-west-2)
+## Step 8 — Add the DeepSeek models
 
 In Settings ▸ Models ▸ **Add model**, paste the model **ID** — the friendly name ("DeepSeek V3.2") is a
-label, not an ID. A model ID in OpenWorker is `<provider-prefix>:<bedrock-model-id>`, where the prefix is
-the provider you configured in Step 7. Confirmed working full string: **`deepseek:deepseek.v3-v1:0`**.
+label, not an ID. A model ID in OpenWorker is `<provider-prefix>:<bedrock-model-id>`, where the prefix is the
+provider you configured in Step 7. Add these two (both verified working against a live account, us-west-2):
 
-Two routes reach Bedrock, and which one a model uses is fixed by the model family:
+| Model | OpenWorker string (paste verbatim) | Best for | Cost /1M (in / out) |
+|---|---|---|---|
+| DeepSeek V3 | `deepseek:deepseek.v3-v1:0` | General default — strong all-round, cheap | ~$0.62 / $1.85 |
+| DeepSeek V3.2 | `deepseek:deepseek.v3.2` | Newest DeepSeek — best value general/agentic | $0.62 / $1.85 |
 
-**A. Open-weight chat models** — the OpenAI-compatible / Converse route (the provider you point at Bedrock).
-All verified runnable on this account:
-
-| Model | Bedrock model ID |
-|---|---|
-| DeepSeek V3 (recommended default) | `deepseek.v3-v1:0` |
-| DeepSeek V3.2 | `deepseek.v3.2` |
-| Mistral Large 3 (675B) | `mistral.mistral-large-3-675b-instruct` |
-| Qwen3 235B | `qwen.qwen3-235b-a22b-2507` |
-| Qwen3 Coder 480B | `qwen.qwen3-coder-480b-a35b-instruct` |
-| GLM-5 | `zai.glm-5` |
-| Kimi K2.5 | `moonshotai.kimi-k2.5` |
-| MiniMax M2.5 | `minimax.minimax-m2.5` |
-| Nemotron Super 3 120B | `nvidia.nemotron-super-3-120b` |
-| gpt-oss-120b | `openai.gpt-oss-120b` |
-
-**B. Anthropic Claude** — OpenWorker's **native Anthropic-on-Bedrock** path (the Messages API, not
-chat-completions). Available on this account:
-- Claude Sonnet 4.6 — `anthropic.claude-sonnet-4-6-v1:0`
-- Claude Haiku 4.5 — `anthropic.claude-haiku-4-5`
-
-**NOT available without an AWS access request** (higher-tier models sit behind a Bedrock model-access /
-use-case review wall): **DeepSeek R1, Claude Opus 4.8 / Opus 5, Claude Sonnet 5**. Also **GPT-5.x** (only on
-the OpenAI Responses API, not chat-completions) and **Grok 4.3** (not exposed on the chat route). If you need
-these, request access in Bedrock ▸ Model access and wait for approval.
-
-The full available-model list for this account tier is in the repo README.
+`deepseek:deepseek.v3-v1:0` is the confirmed default. Bedrock offers many other models (Claude, Qwen, GLM,
+Mistral, …) on the same account, but they're fussier to wire up — this quick-start stays with the two
+DeepSeek models on purpose.
 
 ## Step 9 — Select & verify end-to-end
 1. In the composer's model dropdown, **select** the model you added (adding ≠ selecting — the composer keeps
@@ -166,10 +145,10 @@ The full available-model list for this account tier is in the repo README.
 - Confirm: budget alert set (README §2), env file is `600` + git-ignored, root MFA on, agent user has only
   the Bedrock policy.
 - Tell the user their working defaults:
-  - Everyday (open-weight route): `deepseek:deepseek.v3-v1:0`
-  - Most capable available: Claude Sonnet 4.6 (`anthropic.claude-sonnet-4-6-v1:0`) via OpenWorker's native
-    Anthropic-on-Bedrock integration — no extra approval needed on a standard account.
-  - Gated (needs an AWS model-access request): DeepSeek R1, Claude Opus 4.8/5, Claude Sonnet 5.
+  - Default: `deepseek:deepseek.v3-v1:0`
+  - Alternate: `deepseek:deepseek.v3.2`
+  - Other Bedrock models (Claude, Qwen, GLM, Mistral, …) exist on the same account but are out of scope for
+    this quick-start; gated ones (DeepSeek R1, Claude Opus 4.8/5, Sonnet 5) need an AWS model-access request.
 
 ## Failure decoder (quick)
 - `model 'deepseek-v4-flash' does not exist` → the **public deepseek.com** tile is selected. Point the
